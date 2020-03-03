@@ -89,6 +89,9 @@ public class Datacenter extends SimEntity {
 		
 		for (Host host : getCharacteristics().getHostList()) {
 			host.setDatacenter(this);
+			//System.out.println(schedulingInterval);
+			//System.out.println(lastProcessTime);
+
 		}
 
 		// If this resource doesn't have any PEs then no useful at all

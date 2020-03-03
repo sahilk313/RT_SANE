@@ -83,6 +83,7 @@ public class CloudletSchedulerTimeShared extends CloudletScheduler {
 		List<ResCloudlet> toRemove = new ArrayList<ResCloudlet>();
 		for (ResCloudlet rcl : getCloudletExecList()) {
 			long remainingLength = rcl.getRemainingCloudletLength();
+		//	System.out.println(remainingLength);
 			if (remainingLength == 0) {// finished: remove from the list
 				toRemove.add(rcl);
 				cloudletFinish(rcl);
@@ -101,7 +102,8 @@ public class CloudletSchedulerTimeShared extends CloudletScheduler {
 
 			if (estimatedFinishTime < nextEvent) {
 				nextEvent = estimatedFinishTime;
-			}
+			}//	System.out.println(estimatedFinishTime);
+
 		}
 
 		setPreviousTime(currentTime);

@@ -18,8 +18,8 @@ public class TupleScheduler extends CloudletSchedulerTimeShared{
 	 * @return the estimated finish time
 	 */
 	public double getEstimatedFinishTime(ResCloudlet rcl, double time) {
-		//System.out.println("REMAINING CLOUDLET LENGTH : "+rcl.getRemainingCloudletLength()+"\tCLOUDLET LENGTH"+rcl.getCloudletLength());
-		//System.out.println("CURRENT ALLOC MIPS FOR CLOUDLET : "+getTotalCurrentAllocatedMipsForCloudlet(rcl, time));
+		System.out.println("REMAINING CLOUDLET LENGTH : "+rcl.getRemainingCloudletLength()+"\tCLOUDLET LENGTH"+rcl.getCloudletLength());
+		System.out.println("CURRENT ALLOC MIPS FOR CLOUDLET : "+getTotalCurrentAllocatedMipsForCloudlet(rcl, time));
 		
 		/*>>>>>>>>>>>>>>>>>>>>*/
 		/* edit made by HARSHIT GUPTA */

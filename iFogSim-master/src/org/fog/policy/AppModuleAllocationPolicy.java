@@ -26,6 +26,7 @@ public class AppModuleAllocationPolicy extends VmAllocationPolicy{
 	public boolean allocateHostForVm(Vm vm) {
 		Host host = fogHost;
 		boolean result = host.vmCreate(vm);
+		//System.out.println(result);
 		if (result) { // if vm were succesfully created in the host
 			getAppModuleIdsIds().add(vm.getId());
 		}

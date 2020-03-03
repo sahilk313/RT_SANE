@@ -1,6 +1,7 @@
 package org.fog.entities;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,6 +44,8 @@ public class FogDevice extends PowerDatacenter {
 	protected Queue<Pair<Tuple, Integer>> southTupleQueue;
 	
 	protected List<String> activeApplications;
+    double t0=0,t1=0,t2=0,t3=0,t4=0,t5=0;
+
 	
 	protected Map<String, Application> applicationMap;
 	protected Map<String, List<String>> appToModulesMap;
@@ -160,7 +163,7 @@ public class FogDevice extends PowerDatacenter {
 
 		int hostId = FogUtils.generateEntityId();
 		long storage = 1000000; // host storage
-		int bw = 10000;
+		int bw = 20000;
 
 		PowerHost host = new PowerHost(
 				hostId,
@@ -437,7 +440,7 @@ public class FogDevice extends PowerDatacenter {
 		 */
 		/*for (PowerHost host : this.<PowerHost> getHostList()) {
 			for (Vm vm : host.getCompletedVms()) {
-				getVmAllocationPolicy().deallocateHostForVm(vm);
+				getVmAllocationPolicy().HostForVm(vm);
 				getVmList().remove(vm);
 				Log.printLine("VM #" + vm.getId() + " has been deallocated from host #" + host.getId());
 			}
@@ -448,8 +451,7 @@ public class FogDevice extends PowerDatacenter {
 		setLastProcessTime(currentTime);
 		return minTime;
 	}
-
-
+  public static int p,q,r;
 	protected void checkCloudletCompletion() {
 		boolean cloudletCompleted = false;
 		List<? extends Host> list = getVmAllocationPolicy().getHostList();
@@ -464,7 +466,19 @@ public class FogDevice extends PowerDatacenter {
 						Tuple tuple = (Tuple)cl;
 						TimeKeeper.getInstance().tupleEndedExecution(tuple);
 						Application application = getApplicationMap().get(tuple.getAppId());
-						Logger.debug(getName(), "Completed execution of tuple "+tuple.getCloudletId()+"on "+tuple.getDestModuleName());
+						//Logger.debug(getName(), "Completed execution of tuple "+tuple.getCloudletId()+" on "+tuple.getDestModuleName());
+						System.out.println("At "+(Calendar.getInstance().getTimeInMillis()-TimeKeeper.getInstance().getSimulationStartTime())+" "+
+						getName() + " Completed execution of tuple "+tuple.getCloudletId()+" on "+tuple.getDestModuleName());
+						if(p == 0){
+							p=vm.getId();
+							}
+						else if(q==0){
+							q=vm.getId();
+						}
+						else if(r==0){
+							r=vm.getId();
+						}
+						//System.out.println(p);
 						List<Tuple> resultantTuples = application.getResultantTuples(tuple.getDestModuleName(), tuple, getId(), vm.getId());
 						for(Tuple resTuple : resultantTuples){
 							resTuple.setModuleCopyMap(new HashMap<String, Integer>(tuple.getModuleCopyMap()));
@@ -477,9 +491,21 @@ public class FogDevice extends PowerDatacenter {
 				}
 			}
 		}
-		if(cloudletCompleted)
-			updateAllocatedMips(null);
-	}
+		if(cloudletCompleted){
+			updateAllocatedMips(null); //* *******
+			for (PowerHost host : this.<PowerHost> getHostList()) {
+				for (Vm vm : host.getCompletedVms()) {
+					//System.out.println(p);
+					if (vm.getId()==p || vm.getId()==q || vm.getId()==r){
+					getVmAllocationPolicy().deallocateHostForVm(vm);
+					getVmList().remove(vm);
+					//System.out.println("VM #" + vm.getId() + " has been deallocated from host #" + host.getId());
+					}
+				} 
+			} p=0;q=0;r=0; 
+		}	
+}
+		
 	
 	protected void updateTimingsOnSending(Tuple resTuple) {
 		// TODO ADD CODE FOR UPDATING TIMINGS WHEN A TUPLE IS GENERATED FROM A PREVIOUSLY RECIEVED TUPLE. 
@@ -520,22 +546,38 @@ public class FogDevice extends PowerDatacenter {
 	}
 	
 	protected void updateAllocatedMips(String incomingOperator){
+			//getHost().getVmScheduler().deallocatePesForAllVms();
+			for(final Vm vm : getHost().getVmList()){
+				if(vm.getCloudletScheduler().runningCloudlets() > 0 || ((AppModule)vm).getName().equals(incomingOperator)){
+					getHost().getVmScheduler().allocatePesForVm(vm, new ArrayList<Double>(){
+						protected static final long serialVersionUID = 1L;
+					{add((double) getHost().getTotalMips());}});
+				} 
+				else{
+					getHost().getVmScheduler().allocatePesForVm(vm, new ArrayList<Double>(){
+						protected static final long serialVersionUID = 1L;
+					{add(0.0);}});
+				}
+			break;
+			}
+		// System.out.println("Scheduling " + incomingOperator + " in " +  this.getName()+"  Available MIPS: " +getHost().getVmScheduler().getAvailableMips());
+		updateEnergyConsumption();
+	}
+	
+/*	protected void updateAllocatedMips(String incomingOperator){
 		getHost().getVmScheduler().deallocatePesForAllVms();
 		for(final Vm vm : getHost().getVmList()){
-			if(vm.getCloudletScheduler().runningCloudlets() > 0 || ((AppModule)vm).getName().equals(incomingOperator)){
-				getHost().getVmScheduler().allocatePesForVm(vm, new ArrayList<Double>(){
-					protected static final long serialVersionUID = 1L;
-				{add((double) getHost().getTotalMips());}});
-			}else{
-				getHost().getVmScheduler().allocatePesForVm(vm, new ArrayList<Double>(){
-					protected static final long serialVersionUID = 1L;
-				{add(0.0);}});
-			}
+		  if(vm.getCloudletScheduler().runningCloudlets() > 0 ||((AppModule)vm).getName().equals(incomingOperator)){
+		      System.out.println("Scheduling " + incomingOperator + " in " +this.getName());
+		      System.out.println("    Available MIPS: " +getHost().getVmScheduler().getAvailableMips());
+		      getHost().getVmScheduler().allocatePesForVm(vm, new ArrayList<Double>(){
+		         protected static final long serialVersionUID = 1L;
+		      {add((double) getHost().getTotalMips()/5);}});
+		  }else{
+		    getHost().getVmScheduler().allocatePesForVm(vm, new ArrayList<Double>(){
+		       protected static final long serialVersionUID = 1L; {add(0.0);}});
 		}
-		
-		updateEnergyConsumption();
-		
-	}
+		}*/
 	
 	private void updateEnergyConsumption() {
 		double totalMipsAllocated = 0;
@@ -720,6 +762,8 @@ public class FogDevice extends PowerDatacenter {
 	
 	protected void executeTuple(SimEvent ev, String moduleName){
 		Logger.debug(getName(), "Executing tuple on module "+moduleName);
+		//System.out.println(getName()+ " Executing tuple on module "+moduleName);
+
 		Tuple tuple = (Tuple)ev.getData();
 		
 		AppModule module = getModuleByName(moduleName);
@@ -742,9 +786,47 @@ public class FogDevice extends PowerDatacenter {
 		updateAllocatedMips(moduleName);
 		processCloudletSubmit(ev, false);
 		updateAllocatedMips(moduleName);
-		/*for(Vm vm : getHost().getVmList()){
-			Logger.error(getName(), "MIPS allocated to "+((AppModule)vm).getName()+" = "+getHost().getTotalAllocatedMipsForVm(vm));
-		}*/
+		// ** System.out.println(tuple.getAppId()+"   "+
+		// ** (Calendar.getInstance().getTimeInMillis()-TimeKeeper.getInstance().getSimulationStartTime())+"  "
+		//		+ " "+getName()+"   "+moduleName+" ");
+		
+		for(Vm vm : getHost().getVmList()){
+			//*** System.out.println("HI");
+			//*** System.out.println("At "+(Calendar.getInstance().getTimeInMillis()-TimeKeeper.getInstance().getSimulationStartTime())+" " 
+			//*** +getName()+ " MIPS allocated to "+((AppModule)vm).getName()+" = "+getHost().getTotalAllocatedMipsForVm(vm));
+
+			
+			/*if(((AppModule)vm).getName()=="client"){
+				t0= (t0+getHost().getTotalAllocatedMipsForVm(vm));
+			System.out.println(getName()+ " MIPS allocated to "+((AppModule)vm).getName()+" = "+getHost().getTotalAllocatedMipsForVm(vm)
+					+" "+t0);
+		     }
+			else if(((AppModule)vm).getName()=="client_1"){
+				t1= (t1+getHost().getTotalAllocatedMipsForVm(vm));
+
+			System.out.println(getName()+ " MIPS allocated to "+((AppModule)vm).getName()+" = "+getHost().getTotalAllocatedMipsForVm(vm)
+					+" "+t1);}
+			else if(((AppModule)vm).getName()=="client_2"){
+				t2= (t2+getHost().getTotalAllocatedMipsForVm(vm));
+
+			System.out.println(getName()+ " MIPS allocated to "+((AppModule)vm).getName()+" = "+getHost().getTotalAllocatedMipsForVm(vm)
+					+" "+t2);}
+			else if(((AppModule)vm).getName()=="client_3"){
+				t3= (t3+getHost().getTotalAllocatedMipsForVm(vm));
+
+			System.out.println(getName()+ " MIPS allocated to "+((AppModule)vm).getName()+" = "+getHost().getTotalAllocatedMipsForVm(vm)
+					+" "+t3);}
+			else if(((AppModule)vm).getName()=="client_4"){
+				t4= (t4+getHost().getTotalAllocatedMipsForVm(vm));
+
+			System.out.println(getName()+ " MIPS allocated to "+((AppModule)vm).getName()+" = "+getHost().getTotalAllocatedMipsForVm(vm)
+					+" "+t4);}
+			else {
+				t5= (t5+getHost().getTotalAllocatedMipsForVm(vm));
+
+			System.out.println(getName()+ " MIPS allocated to "+((AppModule)vm).getName()+" = "+getHost().getTotalAllocatedMipsForVm(vm)
+				+" "+t5);}*/
+		}
 	}
 	
 	protected void processModuleArrival(SimEvent ev){
@@ -763,7 +845,7 @@ public class FogDevice extends PowerDatacenter {
 		
 		module.updateVmProcessing(CloudSim.clock(), getVmAllocationPolicy().getHost(module).getVmScheduler()
 				.getAllocatedMipsForVm(module));
-	}
+			}
 	
 	private void initializePeriodicTuples(AppModule module) {
 		String appId = module.getAppId();

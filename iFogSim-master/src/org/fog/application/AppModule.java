@@ -126,6 +126,7 @@ public class AppModule extends PowerVm{
 		this.downInstanceIdsMaps = downInstanceIdsMaps;
 	}
 	public int getNumInstances() {
+		//System.out.println(numInstances);
 		return numInstances;
 	}
 	public void setNumInstances(int numInstances) {
