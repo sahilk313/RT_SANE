@@ -1,7 +1,7 @@
 package org.fog.utils;
 
 public class FogEvents {
-	private static final int BASE = 500;
+	private static final int BASE = 50;
 	public static final int TUPLE_ARRIVAL = BASE + 1;
 	public static final int LAUNCH_MODULE = BASE + 2;
 	public static final int RELEASE_OPERATOR = BASE + 3;

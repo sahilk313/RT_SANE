@@ -10,8 +10,6 @@ public class ModuleLaunchConfig {
 	public ModuleLaunchConfig(AppModule module, int instanceCount){
 		setModule(module);
 		setInstanceCount(instanceCount);
-		//System.out.println(*********************************************************************************);
-
 	}
 	
 	public AppModule getModule() {

@@ -64,7 +64,7 @@ public class TwoApps {
 
 			String appId0 = "vr_game_0";
 			String appId1 = "vr_game_1";
-					
+			
 			FogBroker broker0 = new FogBroker("broker_0");
 			FogBroker broker1 = new FogBroker("broker_1");
 			

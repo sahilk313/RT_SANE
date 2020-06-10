@@ -166,7 +166,7 @@ public class Controller extends SimEntity{
 		System.out.println("=========================================");
 		
 		for(String tupleType : TimeKeeper.getInstance().getTupleTypeToAverageCpuTime().keySet()){
-			System.out.println(tupleType  + " ---> "+TimeKeeper.getInstance().getTupleTypeToAverageCpuTime().get(tupleType));
+			System.out.println(tupleType + " ---> "+TimeKeeper.getInstance().getTupleTypeToAverageCpuTime().get(tupleType));
 		}
 		
 		System.out.println("=========================================");
@@ -188,7 +188,7 @@ public class Controller extends SimEntity{
 		getApplications().put(application.getAppId(), application);
 		getAppLaunchDelays().put(application.getAppId(), delay);
 		getAppModulePlacementPolicy().put(application.getAppId(), modulePlacement);
-		//System.out.println(getAppModulePlacementPolicy()+"  "+modulePlacement);
+		
 		for(Sensor sensor : sensors){
 			sensor.setApp(getApplications().get(sensor.getAppId()));
 		}
@@ -228,7 +228,6 @@ public class Controller extends SimEntity{
 		}
 		
 		Map<Integer, List<AppModule>> deviceToModuleMap = modulePlacement.getDeviceToModuleMap();
-		System.out.println(deviceToModuleMap);
 		for(Integer deviceId : deviceToModuleMap.keySet()){
 			for(AppModule module : deviceToModuleMap.get(deviceId)){
 				sendNow(deviceId, FogEvents.APP_SUBMIT, application);

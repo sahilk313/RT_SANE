@@ -38,7 +38,6 @@ public class TupleFinishDetails {
 	}
 	public void setFinishTime(double finishTime) {
 		this.finishTime = finishTime;
-		//System.out.println("*************"+finishTime);
 	}
 
 	public String getSensorType() {

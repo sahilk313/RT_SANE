@@ -25,7 +25,6 @@ public abstract class ModulePlacement {
 	protected abstract void mapModules();
 	
 	protected boolean canBeCreated(FogDevice fogDevice, AppModule module){
-		//System.out.println(fogDevice.getVmAllocationPolicy());
 		return fogDevice.getVmAllocationPolicy().allocateHostForVm(module);
 	}
 	
@@ -47,10 +46,9 @@ public abstract class ModulePlacement {
 			module = new AppModule(_module);
 		else
 			module = _module;
-		
+			
 		if(canBeCreated(device, module)){
-		//if(true){ 
-			System.out.println("Creating "+module.getName()+" on * device "+device.getName());
+			System.out.println("Creating "+module.getName()+" on device "+device.getName());
 			
 			if(!getDeviceToModuleMap().containsKey(device.getId()))
 				getDeviceToModuleMap().put(device.getId(), new ArrayList<AppModule>());
@@ -61,7 +59,6 @@ public abstract class ModulePlacement {
 			getModuleToDeviceMap().get(module.getName()).add(device.getId());
 			return true;
 		} else {
-			System.out.println("NOP_______");
 			System.err.println("Module "+module.getName()+" cannot be created on device "+device.getName());
 			System.err.println("Terminating");
 			return false;
@@ -113,8 +110,7 @@ public abstract class ModulePlacement {
 	}
 
 	public void setDeviceToModuleMap(Map<Integer, List<AppModule>> deviceToModuleMap) {
-		this.deviceToModuleMap = deviceToModuleMap;			//System.out.println("NOP_______"+deviceToModuleMap);
-
+		this.deviceToModuleMap = deviceToModuleMap;
 	}
 
 	public Map<Integer, Map<String, Integer>> getModuleInstanceCountMap() {
@@ -124,4 +120,5 @@ public abstract class ModulePlacement {
 	public void setModuleInstanceCountMap(Map<Integer, Map<String, Integer>> moduleInstanceCountMap) {
 		this.moduleInstanceCountMap = moduleInstanceCountMap;
 	}
+
 }
